@@ -1,0 +1,10 @@
+# Dev-only files — not part of the deployed site
+temporary screenshots/
+dribbble.com_*.png
+CLAUDE.md
+olo
+Brand assets/
+serve.mjs
+screenshot.mjs
+node_modules/
+.DS_Store

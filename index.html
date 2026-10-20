@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aniah's Matcha</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --olive-900: #262b1b;
+      --olive-800: #30361f;
+      --olive-700: #3f4629;
+      --olive-600: #4f5735;
+      --cream: #ecebde;
+      --cream-text: #efecdc;
+      --ink: #1c1e16;
+      --spring: cubic-bezier(.34, 1.56, .64, 1);
+      --ease-out: cubic-bezier(.22, 1, .36, 1);
+      --u: min(calc(100vw / 1440), calc(100vh / 900)); /* 1 design pixel of the 1440×900 stage */
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.7;
+      background: var(--olive-900);
+      color: var(--cream-text);
+      overflow-x: hidden;
+    }
+    .serif { font-family: "Young Serif", Georgia, serif; }
+
+    /* ---------- Keyframes (transform + opacity only) ---------- */
+    @keyframes fadeDown { from { opacity: 0; translate: 0 -24px; } to { opacity: 1; translate: 0 0; } }
+    @keyframes riseIn   { from { opacity: 0; translate: 0 calc(var(--u) * 160); } to { opacity: 1; translate: 0 0; } }
+    @keyframes cardIn {
+      from { opacity: 0; translate: 0 calc(var(--u) * 320); rotate: 0deg; }
+      to   { opacity: 1; translate: 0 0; rotate: var(--r); }
+    }
+    @keyframes bob      { 0%, 100% { translate: 0 0; } 50% { translate: 0 calc(var(--u) * -16); } }
+    @keyframes floatCup { 0%, 100% { translate: 0 0; } 50% { translate: 0 calc(var(--u) * -10); } }
+    @keyframes moundIn  { from { translate: 0 100%; } to { translate: 0 0; } }
+    @keyframes wordUp   { from { opacity: 0; translate: 0 70%; } to { opacity: 1; translate: 0 0; } }
+    @keyframes popIn    { from { opacity: 0; scale: .4; } to { opacity: 1; scale: 1; } }
+    @keyframes glow     { 0%, 100% { opacity: .55; scale: 1; } 50% { opacity: .9; scale: 1.12; } }
+    @keyframes drift {
+      0%   { opacity: 0; translate: 0 0; }
+      15%  { opacity: var(--o); }
+      85%  { opacity: var(--o); }
+      100% { opacity: 0; translate: var(--dx) calc(var(--u) * -520); }
+    }
+    @keyframes bump { 0% { scale: 1; } 35% { scale: 1.25; } 100% { scale: 1; } }
+
+    /* ---------- Hero backdrop ---------- */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(45% 40% at 50% 60%, rgba(84, 92, 56, .45) 0%, transparent 75%),
+        radial-gradient(120% 90% at 50% 0%, var(--olive-600) 0%, var(--olive-800) 55%, var(--olive-900) 100%);
+    }
+    .glow {
+      position: absolute; left: 50%; top: -10%; width: 90vw; height: 70vh;
+      margin-left: -45vw; z-index: 0; pointer-events: none;
+      background: radial-gradient(50% 50% at 50% 50%, rgba(120, 132, 82, .55) 0%, transparent 70%);
+      animation: glow 9s ease-in-out infinite;
+    }
+    .grain {
+      position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+      opacity: .18; mix-blend-mode: overlay;
+    }
+    .specks { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+    .speck {
+      position: absolute; bottom: 8%;
+      width: var(--s); height: var(--s); border-radius: 50%;
+      background: #c9cf98; opacity: 0;
+      animation: drift var(--t) linear var(--d) infinite;
+    }
+
+    /* ---------- Header ---------- */
+    .header {
+      position: relative; z-index: 30;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 44px 56px 0;
+    }
+    .logo {
+      font-size: 27px; letter-spacing: -0.05em; line-height: 1;
+      color: #fff; text-decoration: none;
+      animation: fadeDown .9s var(--ease-out) .1s both;
+      transition: opacity .2s ease;
+    }
+    .logo:hover { opacity: .8; }
+    .logo:active { opacity: .6; }
+    .pill {
+      position: absolute; left: 50%; top: 40px; transform: translateX(-50%);
+      display: flex; gap: 4px; padding: 5px;
+      border-radius: 18px;
+      background: rgba(214, 220, 196, .16);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 10px 30px -12px rgba(15, 18, 8, .55);
+      backdrop-filter: blur(10px);
+      animation: fadeDown .9s var(--ease-out) .2s both;
+    }
+    .icon-btn {
+      position: relative;
+      width: 52px; height: 52px; border-radius: 13px;
+      display: grid; place-items: center;
+      color: #fff; background: transparent; border: 0; cursor: pointer;
+      transition: transform .35s var(--spring), opacity .2s ease, background-color .2s ease;
+    }
+    .icon-btn svg { width: 17px; height: 17px; }
+    .icon-btn:hover { background-color: rgba(255,255,255,.12); transform: translateY(-2px); }
+    .icon-btn:active { transform: scale(.9); }
+    .icon-btn:focus-visible, .card:focus-visible, .price:focus-visible, .logo:focus-visible {
+      outline: 2px solid var(--cream); outline-offset: 3px;
+    }
+    .icon-btn.is-soft { background: rgba(255,255,255,.18); }
+    .icon-btn.is-dark { background: var(--ink); box-shadow: 0 8px 20px -8px rgba(0,0,0,.6); }
+    .icon-btn.is-dark:hover { background: #2a2d22; }
+    .icon-btn.bump svg { animation: bump .5s var(--spring); }
+    .badge {
+      position: absolute; top: -6px; right: -6px;
+      min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px;
+      background: var(--cream); color: var(--ink);
+      font: 600 11px/20px "Inter", sans-serif; text-align: center;
+      box-shadow: 0 4px 10px -4px rgba(0,0,0,.5);
+    }
+    .badge[hidden] { display: none; }
+    .badge.pop { animation: popIn .45s var(--spring); }
+    .loc {
+      background: rgba(214, 220, 196, .2); box-shadow: 0 10px 30px -12px rgba(15,18,8,.55);
+      animation: fadeDown .9s var(--ease-out) .3s both;
+    }
+
+    /* ---------- Stage (scales with viewport) ---------- */
+    .stage {
+      position: absolute; left: 50%; bottom: 0;
+      width: calc(var(--u) * 1440); height: calc(var(--u) * 900);
+      transform: translateX(-50%);
+      z-index: 10;
+      --mx: 0px; --my: 0px;
+    }
+    .drink {
+      position: absolute; inset: 0; pointer-events: none; z-index: 4;
+      transform: translate(calc(var(--mx) * -.4), calc(var(--my) * -.4));
+      transition: transform 1.2s var(--ease-out);
+      animation: riseIn 1.1s var(--spring) .35s both, floatCup 5s ease-in-out 1.6s infinite;
+    }
+    .cup {
+      position: absolute; left: 50%; top: calc(var(--u) * 222);
+      width: calc(var(--u) * 252); height: calc(var(--u) * 488);
+      transform: translateX(-50%);
+      clip-path: polygon(6% 4.5%, 94.5% 4.5%, 89% 93%, 11% 93%);
+      -webkit-mask-image: linear-gradient(#000 80%, transparent 93%);
+              mask-image: linear-gradient(#000 80%, transparent 93%);
+      overflow: hidden;
+    }
+    .cup img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cup::before { /* colour treatment */
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, #6f7b45, #4f5735);
+      mix-blend-mode: multiply; opacity: .22; z-index: 1;
+    }
+    .cup::after {
+      content: ""; position: absolute; inset: 0; z-index: 3;
+      background: linear-gradient(to top, rgba(0,0,0,.25), transparent 45%);
+    }
+    .tint {
+      position: absolute; inset: 0; z-index: 2;
+      mix-blend-mode: color; opacity: 0;
+      transition: opacity .8s var(--ease-out);
+    }
+    .tint.on { opacity: 1; }
+    .tint[data-flavour="blackberry"] { background: linear-gradient(180deg, #6e2a63 0%, #6e2a63 50%, transparent 60%); }
+    .tint[data-flavour="strawberry"] { background: linear-gradient(180deg, #e0443c 0%, #e0443c 50%, transparent 60%); }
+    .tint[data-flavour="blueberry"]  { background: linear-gradient(180deg, #3f5cb0 0%, #3f5cb0 50%, transparent 60%); }
+    .tint[data-flavour="cranberry"]  { background: linear-gradient(180deg, #c22a3a 0%, #c22a3a 50%, transparent 60%); }
+    .rim {
+      position: absolute; left: 50%; top: calc(var(--u) * 219);
+      width: calc(var(--u) * 372); height: calc(var(--u) * 16);
+      transform: translateX(-50%);
+      border-radius: calc(var(--u) * 8);
+      background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.15));
+      box-shadow: 0 0 24px rgba(230, 236, 200, .25);
+      z-index: 5;
+    }
+    .cup-label {
+      position: absolute; left: 0; right: 0; top: 30%;
+      text-align: center; z-index: 4;
+      font-size: calc(var(--u) * 40); letter-spacing: -0.03em; color: #f6f3e6;
+      text-shadow: 0 2px 14px rgba(20, 24, 8, .45);
+      transition: opacity .3s ease, transform .45s var(--spring);
+    }
+    .swap-out { opacity: 0 !important; transform: translateY(calc(var(--u) * 18)) !important; }
+
+    .mound {
+      position: absolute; left: 0; bottom: 0;
+      width: calc(var(--u) * 1440); height: calc(var(--u) * 200);
+      z-index: 5; pointer-events: none;
+      filter: drop-shadow(0 -10px 30px rgba(10, 14, 4, .35));
+      animation: moundIn 1.2s var(--ease-out) .15s both;
+    }
+
+    .card {
+      position: absolute;
+      width: calc(var(--u) * 225); height: calc(var(--u) * 225);
+      border-radius: calc(var(--u) * 50);
+      background: var(--cream);
+      display: grid; place-items: center;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,.6) inset,
+        0 30px 60px -28px rgba(12, 16, 4, .75),
+        0 12px 24px -16px rgba(30, 40, 10, .5);
+      rotate: var(--r);
+      transform: translate(calc(var(--mx) * var(--depth)), calc(var(--my) * var(--depth)));
+      transition: scale .5s var(--spring), transform 1.2s var(--ease-out);
+      animation:
+        cardIn 1.1s var(--spring) var(--d) both,
+        bob var(--bt) ease-in-out calc(var(--d) + 1.1s) infinite;
+      cursor: pointer; border: 0; padding: 0;
+      z-index: 3;
+    }
+    .card:hover { scale: 1.06; }
+    .card:active { scale: .95; }
+    .card.is-active { scale: 1.1; }
+    .card::after { /* selected ring */
+      content: ""; position: absolute; inset: calc(var(--u) * -8);
+      border-radius: calc(var(--u) * 58);
+      border: 2px solid rgba(239, 236, 220, .7);
+      opacity: 0; scale: .9;
+      transition: opacity .3s ease, scale .5s var(--spring);
+    }
+    .card.is-active::after { opacity: 1; scale: 1; }
+    .card img {
+      width: 64%; height: 64%; border-radius: 50%; object-fit: cover;
+      rotate: calc(var(--r) * -1);
+      mix-blend-mode: multiply;
+      filter: brightness(1.08) contrast(1.06);
+      -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 71%);
+              mask-image: radial-gradient(circle, #000 52%, transparent 71%);
+      transition: rotate .7s var(--spring), scale .5s var(--spring);
+    }
+    .card:hover img { rotate: calc(var(--r) * -1 + 14deg); scale: 1.08; }
+    .card.c1 { --r: -32deg; --d: .55s; --bt: 6.2s; --depth: 1.1;  left: calc(var(--u) * 18);   top: calc(var(--u) * 499); }
+    .card.c2 { --r: -16deg; --d: .45s; --bt: 5.4s; --depth: .7;   left: calc(var(--u) * 296);  top: calc(var(--u) * 376); }
+    .card.c3 { --r: 16deg;  --d: .5s;  --bt: 5.8s; --depth: .8;   left: calc(var(--u) * 919);  top: calc(var(--u) * 371); }
+    .card.c4 { --r: 32deg;  --d: .6s;  --bt: 6.6s; --depth: 1.2;  left: calc(var(--u) * 1197); top: calc(var(--u) * 492); }
+
+    .price {
+      position: absolute; left: 50%; top: calc(var(--u) * 657);
+      width: calc(var(--u) * 92); height: calc(var(--u) * 122);
+      transform: translateX(-50%);
+      border-radius: calc(var(--u) * 18);
+      background: #f4f2ea; color: var(--ink);
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+      padding: calc(var(--u) * 18) 0 calc(var(--u) * 16);
+      box-shadow: 0 20px 40px -18px rgba(10,14,4,.7);
+      border: 0; cursor: pointer; z-index: 7;
+      transition: scale .4s var(--spring), translate .4s var(--spring);
+      animation: popIn .7s var(--spring) 1.05s both;
+    }
+    .price:hover { translate: 0 calc(var(--u) * -8); }
+    .price:active { scale: .92; }
+    .price span {
+      font-size: calc(var(--u) * 12); letter-spacing: -0.02em; line-height: 1;
+      transition: opacity .25s ease, transform .4s var(--spring);
+    }
+    .price svg { width: calc(var(--u) * 24); height: calc(var(--u) * 24); transition: transform .4s var(--spring); }
+    .price:hover svg { transform: translateX(calc(var(--u) * 3)) rotate(-8deg); }
+
+    .headline {
+      position: absolute; left: 0; right: 0; bottom: calc(var(--u) * -6);
+      margin: 0; text-align: center; z-index: 8;
+      font-size: calc(var(--u) * 82); line-height: 1; font-weight: 400;
+      letter-spacing: -0.055em; color: var(--cream-text);
+      text-shadow: 0 10px 30px rgba(20, 24, 8, .4);
+      white-space: nowrap;
+    }
+    .headline .w {
+      display: inline-block;
+      animation: wordUp .9s var(--spring) calc(.75s + var(--i) * .09s) both;
+    }
+
+    /* ---------- Mobile ---------- */
+    @media (max-width: 767px) {
+      :root { --u: calc(100vw / 760); }
+      .header { padding: 24px 16px 0; }
+      .logo { font-size: 22px; }
+      .pill { top: 84px; padding: 4px; border-radius: 15px; }
+      .icon-btn { width: 44px; height: 44px; border-radius: 11px; }
+      .stage { width: calc(var(--u) * 760); height: calc(var(--u) * 1300); }
+      .cup { top: calc(var(--u) * 430); width: calc(var(--u) * 232); height: calc(var(--u) * 450); }
+      .cup-label { font-size: calc(var(--u) * 46); }
+      .price { top: calc(var(--u) * 820); width: calc(var(--u) * 116); height: calc(var(--u) * 150); }
+      .price span { font-size: calc(var(--u) * 18); }
+      .price svg { width: calc(var(--u) * 32); height: calc(var(--u) * 32); }
+      .card { width: calc(var(--u) * 200); height: calc(var(--u) * 200); border-radius: calc(var(--u) * 44); }
+      .card.c1 { left: calc(var(--u) * -40); top: calc(var(--u) * 760); }
+      .card.c2 { left: calc(var(--u) * 10);  top: calc(var(--u) * 500); }
+      .card.c3 { left: calc(var(--u) * 550); top: calc(var(--u) * 500); }
+      .card.c4 { left: calc(var(--u) * 600); top: calc(var(--u) * 760); }
+      .mound { width: calc(var(--u) * 760); height: calc(var(--u) * 470); }
+      .headline { white-space: normal; font-size: calc(var(--u) * 116); bottom: calc(var(--u) * 24); padding: 0 16px; line-height: .95; }
+    }
+
+    .credits {
+      position: absolute; right: 16px; bottom: 10px; z-index: 40;
+      font-size: 11px; line-height: 1; color: rgba(239, 236, 220, .55); text-decoration: none;
+      transition: opacity .2s ease; opacity: .8;
+    }
+    .credits:hover { opacity: 1; color: var(--cream-text); }
+    .credits:active { opacity: .6; }
+    .credits:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+      .specks { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="hero">
+    <div class="glow" aria-hidden="true"></div>
+    <svg class="grain" aria-hidden="true">
+      <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+      <rect width="100%" height="100%" filter="url(#noise)"/>
+    </svg>
+    <div class="specks" aria-hidden="true"></div>
+
+    <header class="header">
+      <a href="#" class="logo serif" aria-label="Aniah's Matcha home">aniah's matcha</a>
+
+      <nav class="pill" aria-label="Main">
+        <button class="icon-btn is-soft" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2.5"/><rect x="13" y="3" width="8" height="8" rx="2.5"/><rect x="3" y="13" width="8" height="8" rx="2.5"/><rect x="13" y="13" width="8" height="8" rx="2.5"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Threads">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M17 8.5C16 5.5 14 4 11.5 4 7.5 4 5 7 5 12s2.5 8 6.5 8c3.5 0 6-2 6-5s-2.5-4-5-4c-2 0-3.5 1-3.5 2.5S10 16 12 16c2.5 0 3.5-2 3.5-5.5"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="X">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.6 7.6L21.7 21h-6.1l-4.8-6.2L5.3 21h-3l7.1-8.1L2 3h6.2l4.3 5.7L17.5 3Zm-1 16.2h1.7L7.6 4.7H5.8l10.7 14.5Z"/></svg>
+        </button>
+        <button class="icon-btn is-dark" id="cartBtn" aria-label="Cart, 0 items">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 3h3l2.6 11.2c.1.5.6.8 1 .8h9.2c.5 0 .9-.3 1-.8L21 7H6.4L5.9 5H2V3Z"/><circle cx="9" cy="19.5" r="1.7"/><circle cx="17" cy="19.5" r="1.7"/></svg>
+          <span class="badge" id="cartBadge" hidden>0</span>
+        </button>
+      </nav>
+
+      <button class="icon-btn loc" aria-label="Find a store">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+      </button>
+    </header>
+
+    <section class="stage" aria-label="Choose a flavour">
+      <button class="card c1" data-flavour="blackberry" data-name="Blackberry" data-price="21.10" aria-pressed="false" aria-label="Blackberry flavour"><img src="images/blackberry.jpg" alt=""></button>
+      <button class="card c2" data-flavour="strawberry" data-name="Strawberry" data-price="20.45" aria-pressed="false" aria-label="Strawberry flavour"><img src="images/strawberry.jpg" alt=""></button>
+
+      <div class="drink">
+        <div class="cup">
+          <img src="images/matcha.jpg" alt="Iced matcha latte in a tall glass">
+          <div class="tint" data-flavour="blackberry"></div>
+          <div class="tint" data-flavour="strawberry"></div>
+          <div class="tint" data-flavour="blueberry"></div>
+          <div class="tint" data-flavour="cranberry"></div>
+          <div class="cup-label serif" id="cupLabel" aria-live="polite">Original</div>
+        </div>
+      </div>
+
+      <button class="card c3" data-flavour="blueberry" data-name="Blueberry" data-price="20.80" aria-pressed="false" aria-label="Blueberry flavour"><img src="images/blueberry.jpg" alt=""></button>
+      <button class="card c4" data-flavour="cranberry" data-name="Cranberry" data-price="21.35" aria-pressed="false" aria-label="Cranberry flavour"><img src="images/cranberry.jpg" alt=""></button>
+
+      <svg class="mound" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="powderFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a3a675"/>
+            <stop offset="1" stop-color="#5e633d"/>
+          </linearGradient>
+          <filter id="powder" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="4" seed="7" result="n"/>
+            <feDiffuseLighting in="n" lighting-color="#d4d6ad" surfaceScale="2.4" result="lit"><feDistantLight azimuth="235" elevation="48"/></feDiffuseLighting>
+            <feComposite in="lit" in2="SourceGraphic" operator="in" result="tex"/>
+            <feBlend in="tex" in2="SourceGraphic" mode="multiply"/>
+          </filter>
+        </defs>
+        <g fill="url(#powderFill)" filter="url(#powder)">
+          <path d="M300 200 L380 150 L430 128 L470 96 L520 80 L560 58 L600 44 L640 30 L680 22 L720 18 L760 24 L800 34 L845 52 L880 70 L930 92 L980 120 L1040 146 L1120 178 L1180 200 Z"/>
+          <path d="M-10 200 L20 172 L70 150 L120 138 L170 146 L220 166 L280 190 L300 200 Z"/>
+          <path d="M1170 200 L1220 176 L1280 152 L1340 140 L1390 148 L1450 170 L1450 200 Z"/>
+        </g>
+      </svg>
+
+      <button class="price" id="priceBtn" aria-label="Add Original to cart, 19.33 dollars">
+        <span class="serif" id="priceText">19.33$</span>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 3h3l2.6 11.2c.1.5.6.8 1 .8h9.2c.5 0 .9-.3 1-.8L21 7H6.4L5.9 5H2V3Z"/><circle cx="9" cy="19.5" r="1.7"/><circle cx="17" cy="19.5" r="1.7"/></svg>
+      </button>
+
+      <h1 class="headline serif" aria-label="Choose your matcha tea">
+        <span class="w" style="--i:0" aria-hidden="true">Choose</span>
+        <span class="w" style="--i:1" aria-hidden="true">your</span>
+        <span class="w" style="--i:2" aria-hidden="true">matcha</span>
+        <span class="w" style="--i:3" aria-hidden="true">tea</span>
+      </h1>
+    </section>
+    <a class="credits" href="credits.html">Photo credits</a>
+  </main>
+
+  <script>
+    (() => {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const stage = document.querySelector('.stage');
+      const cards = [...document.querySelectorAll('.card')];
+      const tints = [...document.querySelectorAll('.tint')];
+      const label = document.getElementById('cupLabel');
+      const priceBtn = document.getElementById('priceBtn');
+      const priceText = document.getElementById('priceText');
+      const cartBtn = document.getElementById('cartBtn');
+      const badge = document.getElementById('cartBadge');
+
+      const ORIGINAL = { flavour: null, name: 'Original', price: '19.33' };
+      let current = ORIGINAL;
+      let cartCount = 0;
+
+      // Swap text with a quick out/in so changes feel animated
+      const swap = (el, text) => {
+        el.classList.add('swap-out');
+        setTimeout(() => { el.textContent = text; el.classList.remove('swap-out'); }, reduce ? 0 : 220);
+      };
+
+      const select = (choice) => {
+        current = choice;
+        cards.forEach(c => {
+          const on = c.dataset.flavour === choice.flavour;
+          c.classList.toggle('is-active', on);
+          c.setAttribute('aria-pressed', on);
+        });
+        tints.forEach(t => t.classList.toggle('on', t.dataset.flavour === choice.flavour));
+        swap(label, choice.name);
+        swap(priceText, choice.price + '$');
+        priceBtn.setAttribute('aria-label', `Add ${choice.name} to cart, ${choice.price} dollars`);
+      };
+
+      cards.forEach(card => card.addEventListener('click', () => {
+        const d = card.dataset;
+        select(current.flavour === d.flavour ? ORIGINAL : { flavour: d.flavour, name: d.name, price: d.price });
+      }));
+
+      priceBtn.addEventListener('click', () => {
+        cartCount++;
+        badge.hidden = false;
+        badge.textContent = cartCount;
+        cartBtn.setAttribute('aria-label', `Cart, ${cartCount} item${cartCount === 1 ? '' : 's'}`);
+        [badge, cartBtn].forEach(el => {
+          const cls = el === badge ? 'pop' : 'bump';
+          el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+        });
+      });
+
+      if (reduce) return;
+
+      // Mouse parallax: cards drift with the pointer, the drink drifts the other way
+      let raf = 0;
+      addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const x = (e.clientX / innerWidth - .5) * 36;
+          const y = (e.clientY / innerHeight - .5) * 24;
+          stage.style.setProperty('--mx', x + 'px');
+          stage.style.setProperty('--my', y + 'px');
+        });
+      });
+
+      // Floating matcha specks
+      const specks = document.querySelector('.specks');
+      for (let i = 0; i < 18; i++) {
+        const s = document.createElement('span');
+        s.className = 'speck';
+        const r = Math.random;
+        s.style.cssText =
+          `left:${(30 + r() * 40).toFixed(1)}%;--s:${(2 + r() * 4).toFixed(1)}px;` +
+          `--o:${(.25 + r() * .45).toFixed(2)};--t:${(9 + r() * 9).toFixed(1)}s;` +
+          `--d:${(r() * -18).toFixed(1)}s;--dx:${((r() - .5) * 160).toFixed(0)}px`;
+        specks.appendChild(s);
+      }
+    })();
+  </script>
+</body>
+</html>
